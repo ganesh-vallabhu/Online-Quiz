@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .leaderboard {
+            width: 80%;
+            max-width: 600px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <div class="leaderboard">
+        <h1>🏆 Leaderboard</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Username</th>
+                    <th>Score</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body"></tbody>
+        </table>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, getDocs, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDsjLVI0I7DeBLvjzYRwg-Q8iaU8hnGFe0",
+            authDomain: "ludiflex-5bc51.firebaseapp.com",
+            projectId: "ludiflex-5bc51",
+            storageBucket: "ludiflex-5bc51.firebasestorage.app",
+            messagingSenderId: "392582235864",
+            appId: "1:392582235864:web:aa0ede5a2f90765a4b79ad"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function updateScore(username, score, timeInSeconds) {
+            const userRef = doc(db, "leaderboard", username);
+            const userSnap = await getDoc(userRef);
+
+            if (!userSnap.exists() || score > userSnap.data().score || (score === userSnap.data().score && timeInSeconds < userSnap.data().time)) {
+                await setDoc(userRef, { username, score, time: timeInSeconds });
+            }
+        }
+
+        async function fetchLeaderboard() {
+            const leaderboardBody = document.getElementById("leaderboard-body");
+            leaderboardBody.innerHTML = "";
+
+            const q = query(collection(db, "leaderboard"), orderBy("score", "desc"), orderBy("time", "asc"), limit(10));
+            const snapshot = await getDocs(q);
+
+            let rank = 1;
+
+            const rows = [];
+            snapshot.forEach(doc => {
+                const { username, score, time } = doc.data();
+                rows.push(`
+                    <tr>
+                        <td>${rank++}</td>
+                        <td>${username}</td>
+                        <td>${score}</td>
+                        <td>${time}s</td>
+                    </tr>`);
+            });
+
+            while (rows.length < 10) {
+                rows.push(`
+                    <tr>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>--</td>
+                    </tr>`);
+            }
+
+            leaderboardBody.innerHTML = rows.join('');
+        }
+
+        fetchLeaderboard();
+
+        // Example of updating a user's score (only updates if new score is higher or time is better for the same score)
+        updateScore("player1", 85, 300);
+        updateScore("player2", 90, 200);
+        updateScore("player3", 75, 400);
+    </script>
+</body>
+</html>
