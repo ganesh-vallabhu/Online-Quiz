@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .leaderboard {
+      width: 80%;
+      max-width: 600px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    .gold {
+      color: gold;
+      font-weight: bold;
+    }
+
+    .silver {
+      color: silver;
+      font-weight: bold;
+    }
+
+    .bronze {
+      color: #cd7f32;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="leaderboard">
+    <h1>🏆 Leaderboard </h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Username</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+  </div>
+
+  <script type="module">
+    // Import Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsjLVI0I7DeBLvjzYRwg-Q8iaU8hnGFe0",
+      authDomain: "ludiflex-5bc51.firebaseapp.com",
+      projectId: "ludiflex-5bc51",
+      storageBucket: "ludiflex-5bc51.firebasestorage.app",
+      messagingSenderId: "392582235864",
+      appId: "1:392582235864:web:aa0ede5a2f90765a4b79ad"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Fetch and Display Leaderboard
+    async function fetchLeaderboard() {
+      const leaderboardBody = document.getElementById("leaderboard-body");
+      const q = query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(10));
+      const snapshot = await getDocs(q);
+
+      let rank = 1;
+
+      snapshot.forEach(doc => {
+        const { username, score } = doc.data();
+        const medal = getMedal(rank);
+
+        leaderboardBody.innerHTML += `
+          <tr>
+            <td class="${medal.class}">${medal.emoji} ${rank}</td>
+            <td>${username}</td>
+            <td>${score}</td>
+          </tr>`;
+        rank++;
+      });
+    }
+
+    function getMedal(rank) {
+      switch (rank) {
+        case 1: return { emoji: '🥇', class: 'gold' };
+        case 2: return { emoji: '🥈', class: 'silver' };
+        case 3: return { emoji: '🥉', class: 'bronze' };
+        default: return { emoji: '', class: '' };
+      }
+    }
+
+    fetchLeaderboard();
+  </script>
+</body>
+
+</html>

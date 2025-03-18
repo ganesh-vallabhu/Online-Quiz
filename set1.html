@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: radial-gradient(circle, #000428, #004e92);
+            color: white;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quiz-container,
+        .score-container {
+            width: 95%;
+            max-width: 750px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 25px rgba(255, 215, 0, 0.8);
+            text-align: center;
+            position: relative;
+            border: 5px solid gold;
+        }
+
+        .question-container {
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 10px;
+            border: 4px solid gold;
+            font-size: 22px;
+            font-weight: bold;
+            color: gold;
+        }
+
+        .timer {
+            width: 80px;
+            height: 80px;
+            background: gold;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: black;
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid white;
+            box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.8);
+        }
+
+        .options {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .options li {
+            padding: 12px;
+            margin: 8px 0;
+            background: #1b1b1b;
+            border: 2px solid gold;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: white;
+            transition: 0.3s;
+        }
+
+        .options li:hover {
+            background: #444;
+        }
+
+        .selected {
+            background: green !important;
+            color: white !important;
+        }
+
+        .next-btn {
+            margin-top: 15px;
+            font-size: 20px;
+            padding: 10px 20px;
+            background: #ff5733;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .next-btn.enabled {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .score-container {
+            display: none;
+        }
+
+        .score-text {
+            font-size: 40px;
+            font-weight: bold;
+            color: gold;
+        }
+
+        .final-score {
+            font-size: 28px;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .leaderboard-btn {
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="quiz-container" id="quiz-container">
+        <div class="timer" id="timer">60</div>
+        <div class="question-container">
+            <p id="question"></p>
+        </div>
+        <ul class="options" id="options"></ul>
+        <button class="next-btn" id="next-btn">Next</button>
+    </div>
+
+    <div id="score-container" class="score-container">
+        <p class="score-text">Your Score:</p>
+        <p id="final-score" class="final-score"></p>
+        <button class="leaderboard-btn" onclick="saveScoreToLeaderboard()">Show Leaderboard</button>
+    </div>
+
+    <script>
+        const questions = [
+    { question: "Who developed the theory of relativity?", options: ["Isaac Newton", "Nikola Tesla", "Albert Einstein", "Galileo Galilei"], answer: "Albert Einstein" },
+    { question: "What is the chemical formula for ozone?", options: ["O2", "O3", "CO2", "H2O"], answer: "O3" },
+    { question: "Which element has the highest melting point?", options: ["Iron", "Tungsten", "Carbon", "Platinum"], answer: "Tungsten" },
+    { question: "In which year did World War II end?", options: ["1942", "1945", "1939", "1950"], answer: "1945" },
+    { question: "What is the smallest prime number?", options: ["1", "2", "3", "5"], answer: "2" },
+    { question: "Which programming language is known as the 'mother of all languages'?", options: ["Python", "C", "Assembly", "Fortran"], answer: "C" },
+    { question: "What is the SI unit of electric current?", options: ["Joule", "Watt", "Ampere", "Volt"], answer: "Ampere" },
+    { question: "Which is the second largest planet in our solar system?", options: ["Earth", "Mars", "Jupiter", "Saturn"], answer: "Saturn" },
+    { question: "Which ancient civilization built the Machu Picchu?", options: ["Mayan", "Inca", "Aztec", "Greek"], answer: "Inca" },
+    { question: "What is the hardest known material on Earth?", options: ["Graphite", "Titanium", "Diamond", "Steel"], answer: "Diamond" },
+    { question: "Which blood group is known as the universal donor?", options: ["A", "AB", "B", "O-"], answer: "O-" },
+    { question: "What is the value of Planck's constant?", options: ["6.63 x 10^-34 Js", "9.8 m/s²", "3 x 10^8 m/s", "1.6 x 10^-19 C"], answer: "6.63 x 10^-34 Js" },
+    { question: "Which is the only planet that rotates clockwise?", options: ["Venus", "Mercury", "Uranus", "Neptune"], answer: "Venus" },
+    { question: "What is the pH value of pure water?", options: ["5", "7", "9", "11"], answer: "7" },
+    { question: "Which Indian scientist discovered the Raman Effect?", options: ["CV Raman", "APJ Abdul Kalam", "Homi Bhabha", "Satyendra Nath Bose"], answer: "CV Raman" },
+    { question: "Which programming language was developed by James Gosling?", options: ["Python", "Java", "C++", "JavaScript"], answer: "Java" },
+    { question: "Which is the deepest point on Earth?", options: ["Mariana Trench", "Great Barrier Reef", "Mid-Atlantic Ridge", "Puerto Rico Trench"], answer: "Mariana Trench" },
+    { question: "Which organ in the human body produces insulin?", options: ["Liver", "Pancreas", "Kidney", "Stomach"], answer: "Pancreas" },
+    { question: "What is the speed of light?", options: ["300,000 km/s", "150,000 km/s", "400,000 km/s", "500,000 km/s"], answer: "300,000 km/s" },
+    { question: "Which country was the first to reach the Moon?", options: ["Russia", "USA", "China", "India"], answer: "USA" }
+];
+
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 60;
+        let selectedAnswer = null;
+        let username = localStorage.getItem("username") || "";
+
+        function loadQuestion() {
+            clearInterval(timer);
+            timeLeft = 60;
+            document.getElementById("timer").innerText = timeLeft;
+            startTimer();
+
+            document.getElementById("question").innerText = questions[currentQuestionIndex].question;
+            document.getElementById("options").innerHTML = "";
+            document.getElementById("next-btn").classList.remove("enabled");
+
+            questions[currentQuestionIndex].options.forEach(option => {
+                const li = document.createElement("li");
+                li.innerText = option;
+                li.onclick = function () {
+                    selectAnswer(this, option);
+                };
+                document.getElementById("options").appendChild(li);
+            });
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    document.getElementById("timer").innerText = timeLeft;
+                } else {
+                    nextQuestion(); // Move to the next question automatically if time runs out
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(element, answer) {
+            document.querySelectorAll(".options li").forEach(option => option.classList.remove("selected"));
+            element.classList.add("selected");
+            selectedAnswer = answer;
+            document.getElementById("next-btn").classList.add("enabled");
+        }
+
+        function nextQuestion() {
+            clearInterval(timer);
+
+            if (selectedAnswer === questions[currentQuestionIndex].answer) {
+                score += 5;
+            }
+
+            selectedAnswer = null;
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        function showScore() {
+            document.getElementById("quiz-container").style.display = "none";
+            document.getElementById("score-container").style.display = "block";
+            document.getElementById("final-score").innerText = `${score} / ${questions.length * 5}`;
+        }
+
+        function saveScoreToLeaderboard() {
+            if (!username) {
+                username = prompt("Enter your username:");
+                if (!username) {
+                    alert("Name is required to save your score!");
+                    return;
+                }
+                localStorage.setItem("username", username);
+            }
+
+            const userData = { username, score, time: 60 - timeLeft };
+            localStorage.setItem('quizResult', JSON.stringify(userData));
+            window.location.href = "leaderboard.html";
+        }
+
+        document.getElementById("next-btn").addEventListener("click", nextQuestion);
+        window.onload = loadQuestion;
+    </script>
+</body>
+
+</html>

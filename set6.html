@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: radial-gradient(circle, #000428, #004e92);
+            color: white;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quiz-container,
+        .score-container {
+            width: 95%;
+            max-width: 750px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 25px rgba(255, 215, 0, 0.8);
+            text-align: center;
+            position: relative;
+            border: 5px solid gold;
+        }
+
+        .question-container {
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 10px;
+            border: 4px solid gold;
+            font-size: 22px;
+            font-weight: bold;
+            color: gold;
+        }
+
+        .timer {
+            width: 80px;
+            height: 80px;
+            background: gold;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: black;
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid white;
+            box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.8);
+        }
+
+        .options {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .options li {
+            padding: 12px;
+            margin: 8px 0;
+            background: #1b1b1b;
+            border: 2px solid gold;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: white;
+            transition: 0.3s;
+        }
+
+        .options li:hover {
+            background: #444;
+        }
+
+        .selected {
+            background: green !important;
+            color: white !important;
+        }
+
+        .next-btn {
+            margin-top: 15px;
+            font-size: 20px;
+            padding: 10px 20px;
+            background: #ff5733;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .next-btn.enabled {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .score-container {
+            display: none;
+        }
+
+        .score-text {
+            font-size: 40px;
+            font-weight: bold;
+            color: gold;
+        }
+
+        .final-score {
+            font-size: 28px;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .leaderboard-btn {
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="quiz-container" id="quiz-container">
+        <div class="timer" id="timer">60</div>
+        <div class="question-container">
+            <p id="question"></p>
+        </div>
+        <ul class="options" id="options"></ul>
+        <button class="next-btn" id="next-btn">Next</button>
+    </div>
+
+    <div id="score-container" class="score-container">
+        <p class="score-text">Your Score:</p>
+        <p id="final-score" class="final-score"></p>
+        <button class="leaderboard-btn" onclick="saveScoreToLeaderboard()">Show Leaderboard</button>
+    </div>
+
+    <script>
+        const questions = [
+    { question: "Which novel is subtitled 'A Tale of the Christ'?", options: ["Ben-Hur", "Les Misérables", "Crime and Punishment", "The Count of Monte Cristo"], answer: "Ben-Hur" },
+    { question: "Which writer coined the phrase 'Big Brother is watching you'?", options: ["George Orwell", "Aldous Huxley", "Ray Bradbury", "Philip K. Dick"], answer: "George Orwell" },
+    { question: "Which Shakespeare play features the character Shylock?", options: ["The Merchant of Venice", "Othello", "Hamlet", "King Lear"], answer: "The Merchant of Venice" },
+    { question: "Which poet wrote 'The Rime of the Ancient Mariner'?", options: ["Samuel Taylor Coleridge", "William Wordsworth", "John Keats", "Lord Byron"], answer: "Samuel Taylor Coleridge" },
+    { question: "Which novel begins with the line 'Call me Ishmael'?", options: ["Moby-Dick", "The Great Gatsby", "Catch-22", "Heart of Darkness"], answer: "Moby-Dick" },
+    { question: "In which novel does the character Holden Caulfield appear?", options: ["The Catcher in the Rye", "To Kill a Mockingbird", "Brave New World", "Fahrenheit 451"], answer: "The Catcher in the Rye" },
+    { question: "Which dystopian novel features the character Winston Smith?", options: ["1984", "Brave New World", "Fahrenheit 451", "The Handmaid's Tale"], answer: "1984" },
+    { question: "Which Russian author wrote 'The Master and Margarita'?", options: ["Mikhail Bulgakov", "Leo Tolstoy", "Fyodor Dostoevsky", "Anton Chekhov"], answer: "Mikhail Bulgakov" },
+    { question: "In which novel does the character Jay Gatsby appear?", options: ["The Great Gatsby", "Of Mice and Men", "The Sun Also Rises", "The Grapes of Wrath"], answer: "The Great Gatsby" },
+    { question: "Who wrote the epic poem 'Paradise Lost'?", options: ["John Milton", "Geoffrey Chaucer", "Edmund Spenser", "John Donne"], answer: "John Milton" },
+    { question: "Which author created the fictional detective Hercule Poirot?", options: ["Agatha Christie", "Arthur Conan Doyle", "Raymond Chandler", "Dashiell Hammett"], answer: "Agatha Christie" },
+    { question: "Which novel features the character Elizabeth Bennet?", options: ["Pride and Prejudice", "Jane Eyre", "Wuthering Heights", "Emma"], answer: "Pride and Prejudice" },
+    { question: "Which author wrote 'One Hundred Years of Solitude'?", options: ["Gabriel García Márquez", "Pablo Neruda", "Isabel Allende", "Jorge Luis Borges"], answer: "Gabriel García Márquez" },
+    { question: "In which novel does the character Count Dracula first appear?", options: ["Dracula", "Frankenstein", "The Picture of Dorian Gray", "The Strange Case of Dr Jekyll and Mr Hyde"], answer: "Dracula" },
+    { question: "Which ancient Greek playwright wrote 'Oedipus Rex'?", options: ["Sophocles", "Euripides", "Aeschylus", "Aristophanes"], answer: "Sophocles" },
+    { question: "Which novel is narrated by Nick Carraway?", options: ["The Great Gatsby", "Of Mice and Men", "To Kill a Mockingbird", "The Catcher in the Rye"], answer: "The Great Gatsby" },
+    { question: "Which literary work begins with 'It was the best of times, it was the worst of times'?", options: ["A Tale of Two Cities", "Great Expectations", "Oliver Twist", "David Copperfield"], answer: "A Tale of Two Cities" },
+    { question: "Who wrote the novel 'Brave New World'?", options: ["Aldous Huxley", "George Orwell", "Ray Bradbury", "H.G. Wells"], answer: "Aldous Huxley" },
+    { question: "Which famous novel is set on the fictional island of Pala?", options: ["Island", "Lord of the Flies", "Robinson Crusoe", "Gulliver's Travels"], answer: "Island" },
+    { question: "Which poet wrote the epic 'The Aeneid'?", options: ["Virgil", "Homer", "Ovid", "Dante Alighieri"], answer: "Virgil" }
+];
+
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 60;
+        let selectedAnswer = null;
+        let username = localStorage.getItem("username") || "";
+
+        function loadQuestion() {
+            clearInterval(timer);
+            timeLeft = 60;
+            document.getElementById("timer").innerText = timeLeft;
+            startTimer();
+
+            document.getElementById("question").innerText = questions[currentQuestionIndex].question;
+            document.getElementById("options").innerHTML = "";
+            document.getElementById("next-btn").classList.remove("enabled");
+
+            questions[currentQuestionIndex].options.forEach(option => {
+                const li = document.createElement("li");
+                li.innerText = option;
+                li.onclick = function () {
+                    selectAnswer(this, option);
+                };
+                document.getElementById("options").appendChild(li);
+            });
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    document.getElementById("timer").innerText = timeLeft;
+                } else {
+                    nextQuestion(); // Move to the next question automatically if time runs out
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(element, answer) {
+            document.querySelectorAll(".options li").forEach(option => option.classList.remove("selected"));
+            element.classList.add("selected");
+            selectedAnswer = answer;
+            document.getElementById("next-btn").classList.add("enabled");
+        }
+
+        function nextQuestion() {
+            clearInterval(timer);
+
+            if (selectedAnswer === questions[currentQuestionIndex].answer) {
+                score += 5;
+            }
+
+            selectedAnswer = null;
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        function showScore() {
+            document.getElementById("quiz-container").style.display = "none";
+            document.getElementById("score-container").style.display = "block";
+            document.getElementById("final-score").innerText = `${score} / ${questions.length * 5}`;
+        }
+
+        function saveScoreToLeaderboard() {
+            if (!username) {
+                username = prompt("Enter your username:");
+                if (!username) {
+                    alert("Name is required to save your score!");
+                    return;
+                }
+                localStorage.setItem("username", username);
+            }
+
+            const userData = { username, score, time: 60 - timeLeft };
+            localStorage.setItem('quizResult', JSON.stringify(userData));
+            window.location.href = "leaderboard.html";
+        }
+
+        document.getElementById("next-btn").addEventListener("click", nextQuestion);
+        window.onload = loadQuestion;
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Home</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: #0a0a0a;
+            color: white;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background-color: #222;
+            padding: 15px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 20px;
+            font-size: 18px;
+            transition: background 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #444;
+            border-radius: 5px;
+        }
+
+        /* User Icon and Logout */
+        .user-section {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            text-align: center;
+        }
+
+        .user-icon {
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .dropdown {
+            display: none;
+            margin-top: 5px;
+        }
+
+        .dropdown a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+        }
+
+        .dropdown a:hover {
+            text-decoration: underline;
+        }
+
+        .show {
+            display: block;
+        }
+
+        /* Centered Quiz Box */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+        }
+
+        .quiz-box {
+            text-align: center;
+            font-size: 80px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: 8px solid #0ff;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 0 25px #0ff, 0 0 50px #0ff;
+            color: #0ff;
+            background: #111;
+            width: 400px;
+            animation: glow 1.5s infinite alternate;
+            position: relative;
+        }
+
+        /* Symbols (✔, ?, !) */
+        .symbols {
+            position: absolute;
+            top: -90px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            font-size: 50px;
+            text-shadow: 0 0 10px, 0 0 20px;
+        }
+
+        .symbols span {
+            animation: floatUpDown 1.5s infinite alternate ease-in-out;
+        }
+
+        /* Different Colors for Symbols */
+        .tick { color: #0f0; text-shadow: 0 0 10px #0f0, 0 0 20px #0f0; }
+        .question { color: #00f; text-shadow: 0 0 10px #00f, 0 0 20px #00f; }
+        .exclamation { color: #ff0; text-shadow: 0 0 10px #ff0, 0 0 20px #ff0; }
+
+        /* Glowing Animation */
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 25px #0ff, 0 0 50px #0ff;
+            }
+            to {
+                box-shadow: 0 0 35px #0ff, 0 0 60px #0ff;
+            }
+        }
+
+        /* Floating Up & Down Animation */
+        @keyframes floatUpDown {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(15px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <a href="home.html">Home</a>
+        <a href="quiz.html">Quiz</a>
+        <a href="contact.html">Contact Us</a>
+    </nav>
+
+    <!-- User Section -->
+    <div class="user-section">
+        <div class="user-icon" onclick="toggleDropdown()">👤</div>
+        <div class="dropdown" id="dropdownMenu">
+            <a href="index.html">Logout</a>
+        </div>
+    </div>
+
+    <!-- Quiz Box -->
+    <div class="container">
+        <div class="quiz-box">
+            <div class="symbols">
+                <span class="tick">✔</span>
+                <span class="question">?</span>
+                <span class="exclamation">!</span>
+            </div>
+            QUIZ
+        </div>
+    </div>
+
+    <!-- JavaScript for Dropdown -->
+    <script>
+        const toggleDropdown = () => {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        };
+
+        window.onclick = (event) => {
+            if (!event.target.matches('.user-icon')) {
+                const dropdown = document.getElementById('dropdownMenu');
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        };
+    </script>
+
+</body>
+</html>

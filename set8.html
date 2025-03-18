@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: radial-gradient(circle, #000428, #004e92);
+            color: white;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quiz-container,
+        .score-container {
+            width: 95%;
+            max-width: 750px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 25px rgba(255, 215, 0, 0.8);
+            text-align: center;
+            position: relative;
+            border: 5px solid gold;
+        }
+
+        .question-container {
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 10px;
+            border: 4px solid gold;
+            font-size: 22px;
+            font-weight: bold;
+            color: gold;
+        }
+
+        .timer {
+            width: 80px;
+            height: 80px;
+            background: gold;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: black;
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid white;
+            box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.8);
+        }
+
+        .options {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .options li {
+            padding: 12px;
+            margin: 8px 0;
+            background: #1b1b1b;
+            border: 2px solid gold;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: white;
+            transition: 0.3s;
+        }
+
+        .options li:hover {
+            background: #444;
+        }
+
+        .selected {
+            background: green !important;
+            color: white !important;
+        }
+
+        .next-btn {
+            margin-top: 15px;
+            font-size: 20px;
+            padding: 10px 20px;
+            background: #ff5733;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .next-btn.enabled {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .score-container {
+            display: none;
+        }
+
+        .score-text {
+            font-size: 40px;
+            font-weight: bold;
+            color: gold;
+        }
+
+        .final-score {
+            font-size: 28px;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .leaderboard-btn {
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="quiz-container" id="quiz-container">
+        <div class="timer" id="timer">60</div>
+        <div class="question-container">
+            <p id="question"></p>
+        </div>
+        <ul class="options" id="options"></ul>
+        <button class="next-btn" id="next-btn">Next</button>
+    </div>
+
+    <div id="score-container" class="score-container">
+        <p class="score-text">Your Score:</p>
+        <p id="final-score" class="final-score"></p>
+        <button class="leaderboard-btn" onclick="saveScoreToLeaderboard()">Show Leaderboard</button>
+    </div>
+
+    <script>
+        const questions = [
+       { question: "In which year did Roger Federer win his first Wimbledon title?", options: ["2003", "2004", "2001", "2002"], answer: "2003" },
+    { question: "Which NBA team holds the record for the longest winning streak?", options: ["Los Angeles Lakers", "Golden State Warriors", "Chicago Bulls", "Miami Heat"], answer: "Los Angeles Lakers" },
+    { question: "Which country won the most gold medals in the 2020 Tokyo Olympics?", options: ["United States", "China", "Japan", "Russia"], answer: "United States" },
+    { question: "Who was the first cricketer to score 100 international centuries?", options: ["Sachin Tendulkar", "Virat Kohli", "Ricky Ponting", "Jacques Kallis"], answer: "Sachin Tendulkar" },
+    { question: "Which Formula 1 driver has won the most world championships?", options: ["Lewis Hamilton", "Michael Schumacher", "Sebastian Vettel", "Ayrton Senna"], answer: "Lewis Hamilton" },
+    { question: "Which football club has won the most UEFA Champions League titles?", options: ["Real Madrid", "AC Milan", "Liverpool", "Barcelona"], answer: "Real Madrid" },
+    { question: "Which athlete holds the record for the longest long jump in history?", options: ["Mike Powell", "Carl Lewis", "Bob Beamon", "Jesse Owens"], answer: "Mike Powell" },
+    { question: "In which year was the first modern Olympic Games held?", options: ["1896", "1900", "1924", "1888"], answer: "1896" },
+    { question: "Which golfer has won the most major championships?", options: ["Jack Nicklaus", "Tiger Woods", "Arnold Palmer", "Phil Mickelson"], answer: "Jack Nicklaus" },
+    { question: "Which team won the first-ever FIFA World Cup in 1930?", options: ["Uruguay", "Argentina", "Brazil", "Germany"], answer: "Uruguay" },
+    { question: "Who is the only tennis player to achieve a Golden Slam (all 4 Grand Slams + Olympic Gold in a single year)?", options: ["Steffi Graf", "Serena Williams", "Roger Federer", "Rafael Nadal"], answer: "Steffi Graf" },
+    { question: "Which NFL team has won the most Super Bowl titles?", options: ["New England Patriots", "Pittsburgh Steelers", "Dallas Cowboys", "San Francisco 49ers"], answer: "New England Patriots" },
+    { question: "Which boxer holds the record for the longest undefeated streak?", options: ["Floyd Mayweather Jr.", "Rocky Marciano", "Julio César Chávez", "Joe Calzaghe"], answer: "Julio César Chávez" },
+    { question: "Which country has won the most Rugby World Cups?", options: ["New Zealand", "South Africa", "Australia", "England"], answer: "New Zealand" },
+    { question: "Which city has hosted the Summer Olympics the most times?", options: ["London", "Paris", "Los Angeles", "Athens"], answer: "London" },
+    { question: "Which country has won the most Copa America titles?", options: ["Uruguay", "Argentina", "Brazil", "Chile"], answer: "Uruguay" },
+    { question: "Who was the first woman to run a marathon in the Olympics?", options: ["Joan Benoit", "Kathrine Switzer", "Paula Radcliffe", "Grete Waitz"], answer: "Joan Benoit" },
+    { question: "Which country has won the most ICC Cricket World Cups?", options: ["Australia", "India", "West Indies", "England"], answer: "Australia" },
+    { question: "Who holds the record for the fastest serve in tennis history?", options: ["Sam Groth", "Andy Roddick", "John Isner", "Ivo Karlovic"], answer: "Sam Groth" },
+    { question: "Which team won the first-ever NBA Championship?", options: ["Philadelphia Warriors", "Boston Celtics", "Chicago Stags", "New York Knicks"], answer: "Philadelphia Warriors" }
+];
+
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 60;
+        let selectedAnswer = null;
+        let username = localStorage.getItem("username") || "";
+
+        function loadQuestion() {
+            clearInterval(timer);
+            timeLeft = 60;
+            document.getElementById("timer").innerText = timeLeft;
+            startTimer();
+
+            document.getElementById("question").innerText = questions[currentQuestionIndex].question;
+            document.getElementById("options").innerHTML = "";
+            document.getElementById("next-btn").classList.remove("enabled");
+
+            questions[currentQuestionIndex].options.forEach(option => {
+                const li = document.createElement("li");
+                li.innerText = option;
+                li.onclick = function () {
+                    selectAnswer(this, option);
+                };
+                document.getElementById("options").appendChild(li);
+            });
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    document.getElementById("timer").innerText = timeLeft;
+                } else {
+                    nextQuestion(); // Move to the next question automatically if time runs out
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(element, answer) {
+            document.querySelectorAll(".options li").forEach(option => option.classList.remove("selected"));
+            element.classList.add("selected");
+            selectedAnswer = answer;
+            document.getElementById("next-btn").classList.add("enabled");
+        }
+
+        function nextQuestion() {
+            clearInterval(timer);
+
+            if (selectedAnswer === questions[currentQuestionIndex].answer) {
+                score += 5;
+            }
+
+            selectedAnswer = null;
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        function showScore() {
+            document.getElementById("quiz-container").style.display = "none";
+            document.getElementById("score-container").style.display = "block";
+            document.getElementById("final-score").innerText = `${score} / ${questions.length * 5}`;
+        }
+
+        function saveScoreToLeaderboard() {
+            if (!username) {
+                username = prompt("Enter your username:");
+                if (!username) {
+                    alert("Name is required to save your score!");
+                    return;
+                }
+                localStorage.setItem("username", username);
+            }
+
+            const userData = { username, score, time: 60 - timeLeft };
+            localStorage.setItem('quizResult', JSON.stringify(userData));
+            window.location.href = "leaderboard.html";
+        }
+
+        document.getElementById("next-btn").addEventListener("click", nextQuestion);
+        window.onload = loadQuestion;
+    </script>
+</body>
+
+</html>

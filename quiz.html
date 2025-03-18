@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 1em;
+      text-align: center;
+      position: relative;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 10px;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 20px;
+      background-color: #555;
+      border-radius: 5px;
+    }
+
+    nav a:hover {
+      background-color: #777;
+    }
+
+   
+    .quiz-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 2em;
+    }
+
+    .quiz-set {
+      background-color: #fff;
+      padding: 1em;
+      margin: 1em;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 250px;
+      height: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+
+    .quiz-set:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      background-color: #f8f8f8;
+    }
+
+    .quiz-set img {
+      width: 200px;
+      height: 200px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .row {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Online Quiz</h1>
+    <nav>
+      <a href="home.html">Home</a>
+      <a href="quiz.html">Quiz</a>
+      <a href="contact.html">Contact Us</a>
+    </nav>
+  </header>
+
+  <section class="quiz-container">
+    <div class="row">
+      <div class="quiz-set">
+        <a href="set1.html">      
+          <img src="set1.jpeg" alt="Set 1">
+        </a>
+        <h3>General Knowledge</h3>
+      </div>
+
+      <div class="quiz-set">
+        <a href="set2.html">
+          <img src="set2.png" alt="Set 2">
+        </a>
+        <h3>History</h3>
+      </div>
+
+      <div class="quiz-set">
+        <a href="set3.html">
+          <img src="set3.png" alt="Set 3">
+        </a>
+        <h3>Science and Technology</h3>
+      </div>
+
+      <div class="quiz-set">
+        <a href="set4.html">
+          <img src="set4.png" alt="Set 4">
+        </a>
+        <h3>Movies and Entertainment</h3>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="quiz-set">
+        <a href="set5.html">
+          <img src="set5.png" alt="Set 5">
+        </a>
+        <h3>Geography</h3>
+      </div>
+
+      <div class="quiz-set">
+        <a href="set6.html">
+          <img src="set6.png" alt="Set 6">
+        </a>
+        <h3>Literature</h3>
+      </div>
+
+      <div class="quiz-set">
+        <a href="set7.html">
+          <img src="set7.png" alt="Set 7">
+        </a>
+        <h3>Math and Logic</h3>
+      </div>
+
+      <div class="quiz-set">
+        <a href="set8.html">
+          <img src="set8.png" alt="Set 8">
+        </a>
+        <h3>Sports</h3>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

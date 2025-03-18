@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: radial-gradient(circle, #000428, #004e92);
+            color: white;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quiz-container,
+        .score-container {
+            width: 95%;
+            max-width: 750px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 25px rgba(255, 215, 0, 0.8);
+            text-align: center;
+            position: relative;
+            border: 5px solid gold;
+        }
+
+        .question-container {
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 10px;
+            border: 4px solid gold;
+            font-size: 22px;
+            font-weight: bold;
+            color: gold;
+        }
+
+        .timer {
+            width: 80px;
+            height: 80px;
+            background: gold;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: black;
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid white;
+            box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.8);
+        }
+
+        .options {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .options li {
+            padding: 12px;
+            margin: 8px 0;
+            background: #1b1b1b;
+            border: 2px solid gold;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: white;
+            transition: 0.3s;
+        }
+
+        .options li:hover {
+            background: #444;
+        }
+
+        .selected {
+            background: green !important;
+            color: white !important;
+        }
+
+        .next-btn {
+            margin-top: 15px;
+            font-size: 20px;
+            padding: 10px 20px;
+            background: #ff5733;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .next-btn.enabled {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .score-container {
+            display: none;
+        }
+
+        .score-text {
+            font-size: 40px;
+            font-weight: bold;
+            color: gold;
+        }
+
+        .final-score {
+            font-size: 28px;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .leaderboard-btn {
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="quiz-container" id="quiz-container">
+        <div class="timer" id="timer">60</div>
+        <div class="question-container">
+            <p id="question"></p>
+        </div>
+        <ul class="options" id="options"></ul>
+        <button class="next-btn" id="next-btn">Next</button>
+    </div>
+
+    <div id="score-container" class="score-container">
+        <p class="score-text">Your Score:</p>
+        <p id="final-score" class="final-score"></p>
+        <button class="leaderboard-btn" onclick="saveScoreToLeaderboard()">Show Leaderboard</button>
+    </div>
+
+    <script>
+         const questions = [
+       { question: "Which film won the first-ever Academy Award for Best Picture?", options: ["Wings", "Gone with the Wind", "The Jazz Singer", "Citizen Kane"], answer: "Wings" },
+    { question: "In which year was the movie 'Pulp Fiction' released?", options: ["1994", "1996", "1992", "1998"], answer: "1994" },
+    { question: "Which director is known for the 'Dollars Trilogy'?", options: ["Sergio Leone", "Quentin Tarantino", "Francis Ford Coppola", "Stanley Kubrick"], answer: "Sergio Leone" },
+    { question: "What is the highest-rated movie on IMDb as of 2024?", options: ["The Shawshank Redemption", "The Godfather", "Inception", "The Dark Knight"], answer: "The Shawshank Redemption" },
+    { question: "Who composed the soundtrack for the movie 'Interstellar'?", options: ["Hans Zimmer", "John Williams", "Ennio Morricone", "Alan Silvestri"], answer: "Hans Zimmer" },
+    { question: "Which movie holds the record for the most Oscars won?", options: ["Titanic", "Ben-Hur", "The Lord of the Rings: The Return of the King", "All of the above"], answer: "All of the above" },
+    { question: "Which actor has won the most Academy Awards for Best Actor?", options: ["Daniel Day-Lewis", "Jack Nicholson", "Marlon Brando", "Tom Hanks"], answer: "Daniel Day-Lewis" },
+    { question: "In which movie did Leonardo DiCaprio finally win his first Oscar?", options: ["The Revenant", "Inception", "The Wolf of Wall Street", "Shutter Island"], answer: "The Revenant" },
+    { question: "What was the first animated feature film to be nominated for Best Picture at the Oscars?", options: ["Beauty and the Beast", "The Lion King", "Toy Story", "Shrek"], answer: "Beauty and the Beast" },
+    { question: "Who played the character 'Anton Chigurh' in 'No Country for Old Men'?", options: ["Javier Bardem", "Benicio del Toro", "Willem Dafoe", "Christoph Waltz"], answer: "Javier Bardem" },
+    { question: "Which film franchise is the highest-grossing of all time?", options: ["Marvel Cinematic Universe", "Harry Potter", "Star Wars", "The Fast and the Furious"], answer: "Marvel Cinematic Universe" },
+    { question: "Which actress holds the record for most Academy Award nominations?", options: ["Meryl Streep", "Katharine Hepburn", "Ingrid Bergman", "Bette Davis"], answer: "Meryl Streep" },
+    { question: "Who directed the movie 'Schindler's List'?", options: ["Steven Spielberg", "Martin Scorsese", "Quentin Tarantino", "Francis Ford Coppola"], answer: "Steven Spielberg" },
+    { question: "Which movie is famous for the line 'Here's looking at you, kid'?", options: ["Casablanca", "The Godfather", "Citizen Kane", "Gone with the Wind"], answer: "Casablanca" },
+    { question: "Which actor played the role of Joker in 'The Dark Knight'?", options: ["Heath Ledger", "Joaquin Phoenix", "Jack Nicholson", "Jared Leto"], answer: "Heath Ledger" },
+    { question: "Which film won the Best Picture Oscar in 2020?", options: ["Parasite", "1917", "Joker", "Once Upon a Time in Hollywood"], answer: "Parasite" },
+    { question: "Which sci-fi movie is famous for the line 'I am your father'?", options: ["Star Wars: The Empire Strikes Back", "The Matrix", "Blade Runner", "Alien"], answer: "Star Wars: The Empire Strikes Back" },
+    { question: "Which movie character said 'I'll be back'?", options: ["The Terminator", "John McClane", "James Bond", "Indiana Jones"], answer: "The Terminator" },
+    { question: "Who directed the psychological thriller 'Se7en'?", options: ["David Fincher", "Christopher Nolan", "Alfred Hitchcock", "Ridley Scott"], answer: "David Fincher" },
+    { question: "Which movie features the character 'Tyler Durden'?", options: ["Fight Club", "American Psycho", "The Big Lebowski", "The Usual Suspects"], answer: "Fight Club" }
+];
+
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 60;
+        let selectedAnswer = null;
+        let username = localStorage.getItem("username") || "";
+
+        function loadQuestion() {
+            clearInterval(timer);
+            timeLeft = 60;
+            document.getElementById("timer").innerText = timeLeft;
+            startTimer();
+
+            document.getElementById("question").innerText = questions[currentQuestionIndex].question;
+            document.getElementById("options").innerHTML = "";
+            document.getElementById("next-btn").classList.remove("enabled");
+
+            questions[currentQuestionIndex].options.forEach(option => {
+                const li = document.createElement("li");
+                li.innerText = option;
+                li.onclick = function () {
+                    selectAnswer(this, option);
+                };
+                document.getElementById("options").appendChild(li);
+            });
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    document.getElementById("timer").innerText = timeLeft;
+                } else {
+                    nextQuestion(); // Move to the next question automatically if time runs out
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(element, answer) {
+            document.querySelectorAll(".options li").forEach(option => option.classList.remove("selected"));
+            element.classList.add("selected");
+            selectedAnswer = answer;
+            document.getElementById("next-btn").classList.add("enabled");
+        }
+
+        function nextQuestion() {
+            clearInterval(timer);
+
+            if (selectedAnswer === questions[currentQuestionIndex].answer) {
+                score += 5;
+            }
+
+            selectedAnswer = null;
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        function showScore() {
+            document.getElementById("quiz-container").style.display = "none";
+            document.getElementById("score-container").style.display = "block";
+            document.getElementById("final-score").innerText = `${score} / ${questions.length * 5}`;
+        }
+
+        function saveScoreToLeaderboard() {
+            if (!username) {
+                username = prompt("Enter your username:");
+                if (!username) {
+                    alert("Name is required to save your score!");
+                    return;
+                }
+                localStorage.setItem("username", username);
+            }
+
+            const userData = { username, score, time: 60 - timeLeft };
+            localStorage.setItem('quizResult', JSON.stringify(userData));
+            window.location.href = "leaderboard.html";
+        }
+
+        document.getElementById("next-btn").addEventListener("click", nextQuestion);
+        window.onload = loadQuestion;
+    </script>
+</body>
+
+</html>

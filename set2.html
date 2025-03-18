@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: radial-gradient(circle, #000428, #004e92);
+            color: white;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quiz-container,
+        .score-container {
+            width: 95%;
+            max-width: 750px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 25px rgba(255, 215, 0, 0.8);
+            text-align: center;
+            position: relative;
+            border: 5px solid gold;
+        }
+
+        .question-container {
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 10px;
+            border: 4px solid gold;
+            font-size: 22px;
+            font-weight: bold;
+            color: gold;
+        }
+
+        .timer {
+            width: 80px;
+            height: 80px;
+            background: gold;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: black;
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid white;
+            box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.8);
+        }
+
+        .options {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .options li {
+            padding: 12px;
+            margin: 8px 0;
+            background: #1b1b1b;
+            border: 2px solid gold;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: white;
+            transition: 0.3s;
+        }
+
+        .options li:hover {
+            background: #444;
+        }
+
+        .selected {
+            background: green !important;
+            color: white !important;
+        }
+
+        .next-btn {
+            margin-top: 15px;
+            font-size: 20px;
+            padding: 10px 20px;
+            background: #ff5733;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .next-btn.enabled {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .score-container {
+            display: none;
+        }
+
+        .score-text {
+            font-size: 40px;
+            font-weight: bold;
+            color: gold;
+        }
+
+        .final-score {
+            font-size: 28px;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .leaderboard-btn {
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="quiz-container" id="quiz-container">
+        <div class="timer" id="timer">60</div>
+        <div class="question-container">
+            <p id="question"></p>
+        </div>
+        <ul class="options" id="options"></ul>
+        <button class="next-btn" id="next-btn">Next</button>
+    </div>
+
+    <div id="score-container" class="score-container">
+        <p class="score-text">Your Score:</p>
+        <p id="final-score" class="final-score"></p>
+        <button class="leaderboard-btn" onclick="saveScoreToLeaderboard()">Show Leaderboard</button>
+    </div>
+
+    <script>
+         const questions = [
+    { question: "Who was the architect of the Treaty of Versailles?", options: ["Woodrow Wilson", "Winston Churchill", "Franklin D. Roosevelt", "Joseph Stalin"], answer: "Woodrow Wilson" },
+    { question: "Which ancient civilization built the city of Machu Picchu?", options: ["Inca Empire", "Roman Empire", "Mayan Civilization", "Aztec Empire"], answer: "Inca Empire" },
+    { question: "Which treaty ended the Napoleonic Wars?", options: ["Treaty of Paris", "Treaty of Versailles", "Treaty of Vienna", "Treaty of Tordesillas"], answer: "Treaty of Paris" },
+    { question: "Who was the last Emperor of China?", options: ["Puyi", "Qianlong", "Yongle", "Kangxi"], answer: "Puyi" },
+    { question: "Which war was also known as 'The Great War'?", options: ["World War I", "World War II", "The Cold War", "The American Civil War"], answer: "World War I" },
+    { question: "Which ancient civilization developed the first writing system?", options: ["Sumerians", "Egyptians", "Greeks", "Romans"], answer: "Sumerians" },
+    { question: "Who was the first ruler to unify Germany?", options: ["Otto von Bismarck", "Frederick the Great", "Wilhelm II", "Adolf Hitler"], answer: "Otto von Bismarck" },
+    { question: "In which year did the Russian Revolution occur?", options: ["1917", "1905", "1923", "1939"], answer: "1917" },
+    { question: "Which civilization built the Great Pyramid of Giza?", options: ["Ancient Egyptians", "Romans", "Greeks", "Persians"], answer: "Ancient Egyptians" },
+    { question: "Who led the Cuban Revolution?", options: ["Fidel Castro", "Che Guevara", "Hugo Chávez", "Simón Bolívar"], answer: "Fidel Castro" },
+    { question: "Which country was known as the 'Sick Man of Europe' during the 19th century?", options: ["The Ottoman Empire", "Germany", "Russia", "France"], answer: "The Ottoman Empire" },
+    { question: "Who was the first female Pharaoh of Egypt?", options: ["Hatshepsut", "Cleopatra", "Nefertiti", "Sobekneferu"], answer: "Hatshepsut" },
+    { question: "Which battle marked the end of Napoleon's reign?", options: ["Battle of Waterloo", "Battle of Austerlitz", "Battle of Trafalgar", "Battle of Leipzig"], answer: "Battle of Waterloo" },
+    { question: "Which historical document was signed in 1215?", options: ["Magna Carta", "Declaration of Independence", "Bill of Rights", "Treaty of Westphalia"], answer: "Magna Carta" },
+    { question: "Who discovered America in 1492?", options: ["Christopher Columbus", "Vasco da Gama", "Ferdinand Magellan", "Leif Erikson"], answer: "Christopher Columbus" },
+    { question: "Which dynasty built the Great Wall of China?", options: ["Ming Dynasty", "Qin Dynasty", "Han Dynasty", "Tang Dynasty"], answer: "Qin Dynasty" },
+    { question: "Who was known as the 'Iron Lady' of British politics?", options: ["Margaret Thatcher", "Queen Elizabeth II", "Theresa May", "Angela Merkel"], answer: "Margaret Thatcher" },
+    { question: "In which year did the Berlin Wall fall?", options: ["1989", "1991", "1985", "1993"], answer: "1989" },
+    { question: "Who was the founder of the Mongol Empire?", options: ["Genghis Khan", "Kublai Khan", "Tamerlane", "Attila the Hun"], answer: "Genghis Khan" },
+    { question: "Which civilization built the ancient city of Petra?", options: ["Nabateans", "Persians", "Greeks", "Romans"], answer: "Nabateans" }
+];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 60;
+        let selectedAnswer = null;
+        let username = localStorage.getItem("username") || "";
+
+        function loadQuestion() {
+            clearInterval(timer);
+            timeLeft = 60;
+            document.getElementById("timer").innerText = timeLeft;
+            startTimer();
+
+            document.getElementById("question").innerText = questions[currentQuestionIndex].question;
+            document.getElementById("options").innerHTML = "";
+            document.getElementById("next-btn").classList.remove("enabled");
+
+            questions[currentQuestionIndex].options.forEach(option => {
+                const li = document.createElement("li");
+                li.innerText = option;
+                li.onclick = function () {
+                    selectAnswer(this, option);
+                };
+                document.getElementById("options").appendChild(li);
+            });
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    document.getElementById("timer").innerText = timeLeft;
+                } else {
+                    nextQuestion(); // Move to the next question automatically if time runs out
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(element, answer) {
+            document.querySelectorAll(".options li").forEach(option => option.classList.remove("selected"));
+            element.classList.add("selected");
+            selectedAnswer = answer;
+            document.getElementById("next-btn").classList.add("enabled");
+        }
+
+        function nextQuestion() {
+            clearInterval(timer);
+
+            if (selectedAnswer === questions[currentQuestionIndex].answer) {
+                score += 5;
+            }
+
+            selectedAnswer = null;
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        function showScore() {
+            document.getElementById("quiz-container").style.display = "none";
+            document.getElementById("score-container").style.display = "block";
+            document.getElementById("final-score").innerText = `${score} / ${questions.length * 5}`;
+        }
+
+        function saveScoreToLeaderboard() {
+            if (!username) {
+                username = prompt("Enter your username:");
+                if (!username) {
+                    alert("Name is required to save your score!");
+                    return;
+                }
+                localStorage.setItem("username", username);
+            }
+
+            const userData = { username, score, time: 60 - timeLeft };
+            localStorage.setItem('quizResult', JSON.stringify(userData));
+            window.location.href = "leaderboard.html";
+        }
+
+        document.getElementById("next-btn").addEventListener("click", nextQuestion);
+        window.onload = loadQuestion;
+    </script>
+</body>
+
+</html>

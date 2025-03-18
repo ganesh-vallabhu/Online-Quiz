@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: radial-gradient(circle, #000428, #004e92);
+            color: white;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quiz-container,
+        .score-container {
+            width: 95%;
+            max-width: 750px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 25px rgba(255, 215, 0, 0.8);
+            text-align: center;
+            position: relative;
+            border: 5px solid gold;
+        }
+
+        .question-container {
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 10px;
+            border: 4px solid gold;
+            font-size: 22px;
+            font-weight: bold;
+            color: gold;
+        }
+
+        .timer {
+            width: 80px;
+            height: 80px;
+            background: gold;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: black;
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid white;
+            box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.8);
+        }
+
+        .options {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .options li {
+            padding: 12px;
+            margin: 8px 0;
+            background: #1b1b1b;
+            border: 2px solid gold;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: white;
+            transition: 0.3s;
+        }
+
+        .options li:hover {
+            background: #444;
+        }
+
+        .selected {
+            background: green !important;
+            color: white !important;
+        }
+
+        .next-btn {
+            margin-top: 15px;
+            font-size: 20px;
+            padding: 10px 20px;
+            background: #ff5733;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .next-btn.enabled {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .score-container {
+            display: none;
+        }
+
+        .score-text {
+            font-size: 40px;
+            font-weight: bold;
+            color: gold;
+        }
+
+        .final-score {
+            font-size: 28px;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .leaderboard-btn {
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="quiz-container" id="quiz-container">
+        <div class="timer" id="timer">60</div>
+        <div class="question-container">
+            <p id="question"></p>
+        </div>
+        <ul class="options" id="options"></ul>
+        <button class="next-btn" id="next-btn">Next</button>
+    </div>
+
+    <div id="score-container" class="score-container">
+        <p class="score-text">Your Score:</p>
+        <p id="final-score" class="final-score"></p>
+        <button class="leaderboard-btn" onclick="saveScoreToLeaderboard()">Show Leaderboard</button>
+    </div>
+
+    <script>
+        const questions = [
+    { question: "What is the SI unit of electric charge?", options: ["Coulomb", "Volt", "Ohm", "Ampere"], answer: "Coulomb" },
+    { question: "Which subatomic particle has no electric charge?", options: ["Neutron", "Proton", "Electron", "Photon"], answer: "Neutron" },
+    { question: "Which law states that energy cannot be created or destroyed?", options: ["Law of Conservation of Energy", "Newton's Third Law", "First Law of Thermodynamics", "Heisenberg's Uncertainty Principle"], answer: "Law of Conservation of Energy" },
+    { question: "What is the chemical formula of sulfuric acid?", options: ["H2SO4", "HCl", "HNO3", "CH4"], answer: "H2SO4" },
+    { question: "Which element has the highest melting point?", options: ["Tungsten", "Iron", "Carbon", "Platinum"], answer: "Tungsten" },
+    { question: "Which particle is responsible for the strong nuclear force?", options: ["Gluon", "Photon", "Electron", "Neutrino"], answer: "Gluon" },
+    { question: "Which scientist proposed the theory of general relativity?", options: ["Albert Einstein", "Isaac Newton", "Galileo Galilei", "Stephen Hawking"], answer: "Albert Einstein" },
+    { question: "What is the most abundant gas in Earth's atmosphere?", options: ["Nitrogen", "Oxygen", "Carbon Dioxide", "Argon"], answer: "Nitrogen" },
+    { question: "What is the pH value of pure water?", options: ["7", "5", "9", "4"], answer: "7" },
+    { question: "Which vitamin is known as ascorbic acid?", options: ["Vitamin C", "Vitamin D", "Vitamin A", "Vitamin B12"], answer: "Vitamin C" },
+    { question: "Which planet has the strongest magnetic field in the solar system?", options: ["Jupiter", "Earth", "Saturn", "Neptune"], answer: "Jupiter" },
+    { question: "What is the speed of sound in air at room temperature?", options: ["343 m/s", "299,792 km/s", "1,225 km/h", "400 m/s"], answer: "343 m/s" },
+    { question: "Which is the only metal that is liquid at room temperature?", options: ["Mercury", "Gallium", "Lead", "Aluminum"], answer: "Mercury" },
+    { question: "Which part of the cell is known as the 'powerhouse'?", options: ["Mitochondria", "Nucleus", "Ribosome", "Golgi Apparatus"], answer: "Mitochondria" },
+    { question: "Which type of electromagnetic radiation has the shortest wavelength?", options: ["Gamma Rays", "X-rays", "Ultraviolet", "Microwaves"], answer: "Gamma Rays" },
+    { question: "What is the atomic number of carbon?", options: ["6", "12", "8", "14"], answer: "6" },
+    { question: "Which gas is known as 'laughing gas'?", options: ["Nitrous Oxide", "Carbon Monoxide", "Methane", "Helium"], answer: "Nitrous Oxide" },
+    { question: "Which element is the best conductor of electricity?", options: ["Silver", "Copper", "Gold", "Aluminum"], answer: "Silver" },
+    { question: "Which famous equation is associated with Einstein's theory of relativity?", options: ["E = mc²", "F = ma", "P = IV", "PV = nRT"], answer: "E = mc²" },
+    { question: "Which is the smallest particle in an atom?", options: ["Quark", "Electron", "Proton", "Neutron"], answer: "Quark" }
+];
+
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 60;
+        let selectedAnswer = null;
+        let username = localStorage.getItem("username") || "";
+
+        function loadQuestion() {
+            clearInterval(timer);
+            timeLeft = 60;
+            document.getElementById("timer").innerText = timeLeft;
+            startTimer();
+
+            document.getElementById("question").innerText = questions[currentQuestionIndex].question;
+            document.getElementById("options").innerHTML = "";
+            document.getElementById("next-btn").classList.remove("enabled");
+
+            questions[currentQuestionIndex].options.forEach(option => {
+                const li = document.createElement("li");
+                li.innerText = option;
+                li.onclick = function () {
+                    selectAnswer(this, option);
+                };
+                document.getElementById("options").appendChild(li);
+            });
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    document.getElementById("timer").innerText = timeLeft;
+                } else {
+                    nextQuestion(); // Move to the next question automatically if time runs out
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(element, answer) {
+            document.querySelectorAll(".options li").forEach(option => option.classList.remove("selected"));
+            element.classList.add("selected");
+            selectedAnswer = answer;
+            document.getElementById("next-btn").classList.add("enabled");
+        }
+
+        function nextQuestion() {
+            clearInterval(timer);
+
+            if (selectedAnswer === questions[currentQuestionIndex].answer) {
+                score += 5;
+            }
+
+            selectedAnswer = null;
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        function showScore() {
+            document.getElementById("quiz-container").style.display = "none";
+            document.getElementById("score-container").style.display = "block";
+            document.getElementById("final-score").innerText = `${score} / ${questions.length * 5}`;
+        }
+
+        function saveScoreToLeaderboard() {
+            if (!username) {
+                username = prompt("Enter your username:");
+                if (!username) {
+                    alert("Name is required to save your score!");
+                    return;
+                }
+                localStorage.setItem("username", username);
+            }
+
+            const userData = { username, score, time: 60 - timeLeft };
+            localStorage.setItem('quizResult', JSON.stringify(userData));
+            window.location.href = "leaderboard.html";
+        }
+
+        document.getElementById("next-btn").addEventListener("click", nextQuestion);
+        window.onload = loadQuestion;
+    </script>
+</body>
+
+</html>
